@@ -1,0 +1,163 @@
+/* =====================================================================
+   The Worry Obby: the game world on top, the dock (words + controls) below.
+   ===================================================================== */
+
+.game-canvas {
+  position: fixed; inset: 0; width: 100vw; height: 100vh; height: 100dvh;
+  z-index: 0; display: none; pointer-events: none;
+}
+body.game-on { background: #9fd8f5; }
+/* Nothing of the world shows around or through the lock. */
+body:has(.lock-screen) .game-canvas { display: none !important; }
+
+.map-screen.game { --world: 52dvh; }
+.map-screen.game.typing,
+.map-screen.game.flat { --world: 132px; }
+
+/* Header floats over the sky */
+.map-screen.game .map-header {
+  position: fixed; top: 0; left: 0; right: 0; z-index: 4;
+  padding: max(8px, env(safe-area-inset-top)) 10px 0;
+  background: transparent; border: none; pointer-events: none;
+}
+.map-screen.game .map-header > * { pointer-events: auto; }
+.map-screen.game .map-header .icon-btn {
+  background: rgba(255, 255, 255, 0.86); color: #24303a;
+  box-shadow: 0 2px 10px rgba(20, 40, 60, 0.18);
+}
+.map-screen.game .map-header .icon-btn.on { background: #ffffff; color: #2e6a6e; box-shadow: 0 0 0 2px #2e6a6e, 0 2px 10px rgba(20, 40, 60, 0.18); }
+.map-screen.game .map-header-actions { gap: 6px; }
+.map-screen.game .dots {
+  flex: 0 1 auto; margin: 0 auto; padding: 9px 12px;
+  background: rgba(255, 255, 255, 0.86); border-radius: 999px;
+  box-shadow: 0 2px 10px rgba(20, 40, 60, 0.18);
+}
+.map-screen.game .dots li { background: #c6d0d8; }
+.map-screen.game .dots li.done { background: #7ec2bd; }
+.map-screen.game .dots li.now { background: #2e6a6e; }
+.stage-pill {
+  margin: 0 auto; padding: 8px 14px; border-radius: 999px;
+  background: rgba(255, 255, 255, 0.9); color: #24303a; font-weight: 700; font-size: 15px;
+  box-shadow: 0 2px 10px rgba(20, 40, 60, 0.18);
+}
+
+/* The world: a transparent strip that catches taps */
+.world-slot {
+  position: fixed; top: 0; left: 0; right: 0; z-index: 1;
+  height: var(--world); touch-action: manipulation;
+  transition: height 0.25s ease;
+}
+
+/* The dock */
+.dock {
+  position: fixed; z-index: 2; left: 0; right: 0; bottom: 0;
+  top: calc(var(--world) - 20px);
+  max-width: 640px; margin: 0 auto;
+  display: flex; flex-direction: column;
+  background: var(--bg);
+  border-radius: 24px 24px 0 0;
+  box-shadow: 0 -10px 34px rgba(20, 40, 60, 0.22);
+  transition: top 0.25s ease;
+}
+.dock::before {
+  content: ""; position: absolute; top: 8px; left: 50%; transform: translateX(-50%);
+  width: 40px; height: 5px; border-radius: 3px; background: var(--line);
+}
+.dock .map-body {
+  flex: 1; min-height: 0; overflow-y: auto; overscroll-behavior: contain;
+  width: 100%; margin: 0;
+  padding: 20px 16px 12px; max-width: none;
+}
+.dock .map-footer {
+  position: static; padding: 10px 16px calc(10px + env(safe-area-inset-bottom));
+  background: var(--bg); border-top: 1px solid var(--line);
+}
+.dock .eyebrow { margin: 0 0 2px; }
+.dock h1 { font-size: 22px; margin: 0 0 12px; }
+.dock .q { margin-top: 16px; }
+.dock .q-title { font-size: 17px; margin-bottom: 8px; }
+.dock .choice { min-height: 48px; padding: 9px 12px; }
+.dock .parent-tip { margin-bottom: 12px; font-size: 15px; }
+.dock .sketch-paper { width: min(100%, max(220px, calc(100dvh - 132px - 330px))); }
+
+/* Numbered marks on dock cards, matching the signs in the world */
+.game .choice-mark[data-num] { width: 28px; height: 28px; border-radius: 9px; color: var(--ink-2); border-color: var(--line); }
+.game .choice-mark[data-num] .icon { display: none; }
+.game .choice-mark[data-num]::before { content: attr(data-num); font-weight: 800; font-size: 15px; }
+.game .choice.on .choice-mark[data-num] { background: var(--accent); border-color: var(--accent); color: var(--on-accent); }
+.game .choice[role="checkbox"] .choice-mark[data-num] { border-radius: 9px; }
+
+/* Finish */
+.done-screen.game .dock .before-after { margin: 0 0 12px; padding: 12px; }
+.done-screen.game .dock .ba-num { font-size: 36px; }
+
+@media (prefers-reduced-motion: reduce) {
+  .world-slot, .dock { transition: none; }
+}
+
+/* Header: just the buttons over the sky (the stage number is in the dock) */
+.map-screen.game .dots { display: none; }
+.map-screen.game .map-header-actions { margin-left: auto; }
+
+/* ---- Replay (the map page) ---- */
+.replay-card { margin: 4px 0 12px; }
+.replay-beat { padding: 12px 14px; margin: 0 0 8px; background: var(--surface); border: 1px solid var(--line); border-radius: 14px; }
+.replay-title { margin: 0 0 2px; font-size: 12px; font-weight: 800; letter-spacing: 0.06em; text-transform: uppercase; color: var(--ink-3); }
+.replay-text { margin: 0; font-size: 17px; line-height: 1.4; }
+.replay-controls .footer-right { gap: 6px; }
+.replay-controls .btn-small { min-width: 44px; padding: 0 10px; }
+.replay-count { min-width: 3ch; text-align: center; font-weight: 700; color: var(--ink-2); font-variant-numeric: tabular-nums; }
+.replay-screen .detail-title { font-size: 20px; }
+
+/* The game is full-screen; the replay has its own back button. */
+body.game-on.course-on .tabbar { display: none; }
+
+/* Steps with more to answer get a shorter world and a taller dock. */
+.map-screen.game[data-step="core"],
+.map-screen.game[data-step="reality"],
+.map-screen.game[data-step="body"],
+.map-screen.game[data-step="cope"] { --world: 42dvh; }
+
+/* Body check: a compact three-column grid so the slider stays in view. */
+.game[data-step="body"] .dock .choices-grid { grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 8px; }
+.game[data-step="body"] .dock .choice { min-height: 44px; padding: 6px 8px; gap: 6px; font-size: 15px; }
+.game[data-step="body"] .dock .choice-mark[data-num] { width: 24px; height: 24px; }
+.game[data-step="body"] .dock .q { margin-top: 10px; }
+
+/* Sketch: leave room for the colors and tools under the paper. */
+.dock .sketch-paper { width: min(100%, max(200px, calc(100dvh - 132px - 400px))); }
+
+/* ---- Hub screens (home, maps, score...) ---- */
+.hub-screen[data-world="tall"] { --world: 52dvh; }
+.hub-screen[data-world="normal"] { --world: 46dvh; }
+.hub-screen[data-world="short"] { --world: 40dvh; }
+.hub-screen[data-world="flat"] { --world: 132px; }
+.hub-top { min-height: 8px; }
+
+/* The hub keeps the bottom nav, styled as a game bar; the dock sits above it. */
+body.game-on:not(.course-on) .tabbar {
+  z-index: 3; gap: 6px; padding: 6px 10px calc(6px + env(safe-area-inset-bottom));
+  background: var(--bg); border-top: 1px solid var(--line);
+}
+body.game-on:not(.course-on) .tab {
+  min-height: 50px; border-radius: 14px; border: 1.5px solid var(--line); background: var(--surface);
+  box-shadow: inset 0 -3px 0 rgba(0, 0, 0, 0.06); color: var(--ink-2);
+}
+body.game-on:not(.course-on) .tab[aria-current="page"] {
+  background: var(--accent); border-color: var(--accent); color: var(--on-accent);
+  box-shadow: inset 0 -3px 0 rgba(0, 0, 0, 0.18);
+}
+[data-tabbar="yes"] .hub-screen .dock { bottom: calc(64px + env(safe-area-inset-bottom)); }
+[data-tabbar="yes"] .hub-screen .dock .map-body { padding-bottom: 16px; }
+/* In the game the real avatar shows in the world, so the CSS preview hides. */
+.game .avatar-preview { display: none; }
+.game .onboard-mark { display: none; }
+
+/* Scoreboard: what the outcome colors in the world mean (hub.js OUT). */
+.world-key { display: flex; flex-wrap: wrap; gap: 6px 14px; margin: 0 0 12px; font-size: 14px; color: var(--ink-2); }
+.world-key span { display: inline-flex; align-items: center; gap: 6px; }
+.swatch { display: inline-block; width: 14px; height: 14px; border-radius: 4px; box-shadow: inset 0 0 0 1px rgba(0, 0, 0, 0.12); }
+.swatch.out-no { background: #8ea6d8; }
+.swatch.out-partly { background: #e8c56f; }
+.swatch.out-yes { background: #d99ab8; }
+.swatch.out-unchecked { background: #d9cdb8; }
